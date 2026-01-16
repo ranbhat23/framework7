@@ -1,0 +1,44 @@
+
+
+<template>
+  <div class="page" data-name="about">
+    <div class="navbar">
+      <div class="navbar-bg"></div>
+      <div class="navbar-inner">
+        <div class="title">${orders}</div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default (props, { $f7, $on, $update }) => {
+  let loading = true;
+  let orders = 'Loading...'; // Start with a string if expecting text
+
+  $on('pageInit', async () => {
+    const url = 'https://gist.githubusercontent.com/ranbhat23/3c78e64cc96204f72135e673fec9b146/raw/fdde7462f28c5417857e732a9737eccbfd65891c/token.txt';
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Network response was not ok');
+
+      const data = await response.text();
+      console.log('data', data); 
+      
+      // FIX: Direct assignment because 'orders' is a simple variable
+      orders = data; 
+      
+    } catch (err) {
+      console.error("Fetch error:", err);
+      $f7.dialog.alert('Could not load orders');
+    } finally {
+      loading = false;
+      // This tells F7 to re-scan the HTML and inject the new 'orders' value
+      $update();
+    }
+  });
+
+  return $render;
+}
+</script>

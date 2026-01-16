@@ -1,0 +1,88 @@
+<template>
+  <div class="page" data-name="about">
+    <div class="navbar">
+      <div class="navbar-bg"></div>
+      <div class="navbar-inner">
+        <div class="title">GitHub Actions Control</div>
+      </div>
+    </div>
+
+    <div class="page-content">
+      <div class="block-title">Current Status: ${orders}</div>
+      <div class="block block-strong">
+        <div class="row">
+          <button class="col button button-fill color-green" @click="${() => toggleAction('enable')}">Enable
+            Action</button>
+          <div style="height: 3;">.. </div> <button class="col button button-fill color-red"
+            @click="${() => toggleAction('disable')}">Disable Action</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+  export default (props, { $f7, $on, $update }) => {
+    let orders = 'Loading Token...';
+    let githubToken = '';
+
+    // Configuration - REPLACE THESE with your actual details
+    const OWNER = 'YOUR_GITHUB_USERNAME';
+    const REPO = 'YOUR_REPO_NAME';
+    const WORKFLOW_ID = 'YOUR_WORKFLOW_FILENAME_OR_ID'; // e.g., 'main.yml'
+
+    $on('pageInit', async () => {
+      const url = 'https://gist.githubusercontent.com/ranbhat23/3c78e64cc96204f72135e673fec9b146/raw/fdde7462f28c5417857e732a9737eccbfd65891c/token.txt';
+
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Failed to fetch token');
+        githubToken = (await response.text()).trim();
+        orders = 'Token Ready';
+      } catch (err) {
+        console.error("Fetch error:", err);
+        orders = 'Error loading token';
+        $f7.dialog.alert('Could not load token from Gist');
+      } finally {
+        $update();
+      }
+    });
+
+    const toggleAction = async (state) => {
+      if (!githubToken) {
+        $f7.dialog.alert('No token available');
+        return;
+      }
+
+      $f7.preloader.show();
+
+      try {
+        const response = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/actions/workflows/${WORKFLOW_ID}/${state}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${githubToken}`,
+            'Accept': 'application/vnd.github+json',
+            'X-GitHub-Api-Version': '2022-11-28'
+          }
+        });
+
+        if (response.status === 204) {
+          $f7.toast.create({
+            text: `Action ${state}d successfully!`,
+            closeTimeout: 2000,
+          }).open();
+        } else {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'API Error');
+        }
+      } catch (err) {
+        console.error("GitHub API Error:", err);
+        $f7.dialog.alert(`Failed to ${state} action: ${err.message}`);
+      } finally {
+        $f7.preloader.hide();
+      }
+    };
+
+    return $render;
+  }
+</script>

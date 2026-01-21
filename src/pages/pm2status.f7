@@ -1,241 +1,155 @@
 <template>
-<div class="page" data-name="pm2status">
-  <div class="navbar">
-    <div class="navbar-bg"></div>
-    <div class="navbar-inner sliding">
-      <div class="title">pm2status</div>
+  <div class="page" name="pm2status">
+    <div class="navbar">
+      <div class="navbar-bg"></div>
+      <div class="navbar-inner">
+        <div class="title">PM2 Monitor</div>
+      </div>
     </div>
-  </div>
-  <div class="page-content">
-    <div class="block-title">Form Example</div>
-    <div class="list list-strong-ios list-dividers-ios list-outline-ios">
-      <ul>
-        <li>
-          <div class="item-content item-input">
-            <div class="item-inner">
-              <div class="item-title item-label">Name</div>
-              <div class="item-input-wrap">
-                <input type="text" placeholder="Your name" />
+
+    <div class="page-content">
+      <div class="block-title">Process List</div>
+      <div class="list media-list inset shadow">
+        <ul>
+          ${processes.length === 0 ? $h`
+            <li class="item-content">
+              <div class="item-inner">
+                <div class="item-title text-color-gray">No processes detected...</div>
               </div>
-            </div>
-          </div>
-        </li>
-        <li>
-          <div class="item-content item-input">
-            <div class="item-inner">
-              <div class="item-title item-label">E-mail</div>
-              <div class="item-input-wrap">
-                <input type="email" placeholder="E-mail" />
-              </div>
-            </div>
-          </div>
-        </li>
-        <li>
-          <div class="item-content item-input">
-            <div class="item-inner">
-              <div class="item-title item-label">URL</div>
-              <div class="item-input-wrap">
-                <input type="url" placeholder="URL" />
-              </div>
-            </div>
-          </div>
-        </li>
-        <li>
-          <div class="item-content item-input">
-            <div class="item-inner">
-              <div class="item-title item-label">Password</div>
-              <div class="item-input-wrap">
-                <input type="password" placeholder="Password" />
-              </div>
-            </div>
-          </div>
-        </li>
-        <li>
-          <div class="item-content item-input">
-            <div class="item-inner">
-              <div class="item-title item-label">Phone</div>
-              <div class="item-input-wrap">
-                <input type="tel" placeholder="Phone" />
-              </div>
-            </div>
-          </div>
-        </li>
-        <li>
-          <div class="item-content item-input">
-            <div class="item-inner">
-              <div class="item-title item-label">Gender</div>
-              <div class="item-input-wrap">
-                <select>
-                  <option>Male</option>
-                  <option>Female</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </li>
-        <li>
-          <div class="item-content item-input">
-            <div class="item-inner">
-              <div class="item-title item-label">Birth date</div>
-              <div class="item-input-wrap">
-                <input type="date" placeholder="Birth day" value="2014-04-30" />
-              </div>
-            </div>
-          </div>
-        </li>
-        <li>
-          <div class="item-content">
-            <div class="item-inner">
-              <div class="item-title">Toggle</div>
-              <div class="item-after">
-                <label class="toggle toggle-init">
-                  <input type="checkbox" />
-                  <span class="toggle-icon"></span>
-                </label>
-              </div>
-            </div>
-          </div>
-        </li>
-        <li>
-          <div class="item-content item-input">
-            <div class="item-inner">
-              <div class="item-title item-label">Slider</div>
-              <div class="item-input-wrap">
-                <div class="range-slider range-slider-init" data-label="true">
-                  <input type="range" value="50" min="0" max="100" step="1" />
+            </li>
+          ` : processes.map((p) => $h`
+            <li class="item-content" key="${p.pm_id}">
+              <div class="item-inner">
+                <div class="item-title-row">
+                  <div class="item-title" style="font-weight:bold">${p.name}</div>
+                  <div class="item-after">
+                    <span class="badge ${getStatusColor(p.status)}" style="color:white; padding: 0 8px">
+                      ${p.status}
+                    </span>
+                  </div>
+                </div>
+                <div class="item-subtitle">ID: ${p.pm_id} | Memory: ${p.memory}MB</div>
+                <div class="item-text">
+                  <span>Uptime: ${p.uptime}</span>
+                  ${p.prevStatus && p.prevStatus !== p.status ? $h`
+                    <span style="color:var(--f7-theme-color); margin-left:10px; font-size: 10px;">
+                      (Was: ${p.prevStatus})
+                    </span>
+                  ` : []}
                 </div>
               </div>
-            </div>
-          </div>
-        </li>
-        <li class="align-top">
-          <div class="item-content item-input">
-            <div class="item-inner">
-              <div class="item-title item-label">Textarea</div>
-              <div class="item-input-wrap">
-                <textarea placeholder="Bio"></textarea>
-              </div>
-            </div>
-          </div>
-        </li>
-        <li class="align-top">
-          <div class="item-content item-input">
-            <div class="item-inner">
-              <div class="item-title item-label">Resizable</div>
-              <div class="item-input-wrap">
-                <textarea placeholder="Bio" class="resizable"></textarea>
-              </div>
-            </div>
-          </div>
-        </li>
-      </ul>
-    </div>
-    <div class="block-title">Buttons</div>
-    <div class="block block-strong-ios block-outline-ios grid grid-cols-2 grid-gap">
-      <a href="#" class="button">Button</a>
-      <a href="#" class="button button-fill">Fill</a>
-      <a href="#" class="button button-raised">Raised</a>
-      <a href="#" class="button button-raised button-fill">Raised Fill</a>
-      <a href="#" class="button button-round">Round</a>
-      <a href="#" class="button button-round button-fill">Round Fill</a>
-      <a href="#" class="button button-outline">Outline</a>
-      <a href="#" class="button button-round button-outline">Outline Round</a>
-      <a href="#" class="button button-small button-outline">Small</a>
-      <a href="#" class="button button-small button-round button-outline">Small Round</a>
-      <a href="#" class="button button-small button-fill">Small</a>
-      <a href="#" class="button button-small button-round button-fill">Small Round</a>
-      <a href="#" class="button button-large button-raised">Large</a>
-      <a href="#" class="button button-large button-fill button-raised">Large Fill</a>
-      <a href="#" class="button button-large button-fill button-raised color-red">Large Red</a>
-      <a href="#" class="button button-large button-fill button-raised color-green">Large Green</a>
-    </div>
-    <div class="block-title">Checkbox group</div>
-    <div class="list list-strong-ios list-outline-ios list-dividers-ios">
-      <ul>
-        <li>
-          <label class="item-checkbox item-content">
-            <input type="checkbox" name="checkbox" value="Books" checked="checked" />
-            <i class="icon icon-checkbox"></i>
-            <div class="item-inner">
-              <div class="item-title">Books</div>
-            </div>
-          </label>
-        </li>
-        <li>
-          <label class="item-checkbox item-content">
-            <input type="checkbox" name="checkbox" value="Movies" />
-            <i class="icon icon-checkbox"></i>
-            <div class="item-inner">
-              <div class="item-title">Movies</div>
-            </div>
-          </label>
-        </li>
-        <li>
-          <label class="item-checkbox item-content">
-            <input type="checkbox" name="checkbox" value="Food" />
-            <i class="icon icon-checkbox"></i>
-            <div class="item-inner">
-              <div class="item-title">Food</div>
-            </div>
-          </label>
-        </li>
-        <li>
-          <label class="item-checkbox item-content">
-            <input type="checkbox" name="checkbox" value="Drinks" />
-            <i class="icon icon-checkbox"></i>
-            <div class="item-inner">
-              <div class="item-title">Drinks</div>
-            </div>
-          </label>
-        </li>
-      </ul>
-    </div>
-    <div class="block-title">Radio buttons group</div>
-    <div class="list list-strong-ios list-outline-ios list-dividers-ios">
-      <ul>
-        <li>
-          <label class="item-radio item-content">
-            <input type="radio" name="radio" value="Books" checked="checked" />
-            <i class="icon icon-radio"></i>
-            <div class="item-inner">
-              <div class="item-title">Books</div>
-            </div>
-          </label>
-        </li>
-        <li>
-          <label class="item-radio item-content">
-            <input type="radio" name="radio" value="Movies" />
-            <i class="icon icon-radio"></i>
-            <div class="item-inner">
-              <div class="item-title">Movies</div>
-            </div>
-          </label>
-        </li>
-        <li>
-          <label class="item-radio item-content">
-            <input type="radio" name="radio" value="Food" />
-            <i class="icon icon-radio"></i>
-            <div class="item-inner">
-              <div class="item-title">Food</div>
-            </div>
-          </label>
-        </li>
-        <li>
-          <label class="item-radio item-content">
-            <input type="radio" name="radio" value="Drinks" />
-            <i class="icon icon-radio"></i>
-            <div class="item-inner">
-              <div class="item-title">Drinks</div>
-            </div>
-          </label>
-        </li>
-      </ul>
+            </li>
+          `)}
+        </ul>
+      </div>
+
+      <div class="block-title">Status Log</div>
+      <div class="card">
+        <div class="card-content card-content-padding">
+          <pre class="log-container">${String(lastEvent)}</pre>
+        </div>
+      </div>
     </div>
   </div>
-</div>
 </template>
+
+<style>
+  .badge.online { background-color: #4cd964; }
+  .badge.stopped { background-color: #ff3b30; }
+  .badge.errored { background-color: #ff9500; }
+  
+  .log-container {
+    font-size: 10px; 
+    background: #1a1a1a; 
+    color: #00ff00; 
+    padding: 12px; 
+    border-radius: 4px; 
+    overflow: auto;
+    max-height: 160px;
+    margin: 0;
+    font-family: monospace;
+  }
+</style>
+
 <script>
-export default () => {
-  return $render;
-};
+  export default (props, { $f7, $on, $update, $h }) => {
+    // 1. Component State
+    let processes = [];
+    let lastEvent = 'Waiting for PM2 events...';
+    const processHistory = {};
+
+    // 2. Logic Helpers
+    const getStatusColor = (status) => {
+      if (status === 'online') return 'online';
+      if (status === 'stopped') return 'stopped';
+      return 'errored';
+    };
+
+    const processUpdate = (processData) => {
+      if (!processData || typeof processData.pm_id === 'undefined') return;
+
+      const id = processData.pm_id;
+      const currentStatus = processData.pm2_env ? processData.pm2_env.status : 'unknown';
+      
+      const updatedObj = {
+        pm_id: id,
+        name: processData.name,
+        status: currentStatus,
+        prevStatus: processHistory[id] || null,
+        memory: processData.monit ? (processData.monit.memory / (1024 * 1024)).toFixed(2) : '0',
+        uptime: (processData.pm2_env && processData.pm2_env.pm_uptime) 
+                 ? Math.floor((Date.now() - processData.pm2_env.pm_uptime) / 1000) + 's' 
+                 : 'N/A'
+      };
+
+      processHistory[id] = currentStatus;
+      const index = processes.findIndex(p => p.pm_id === id);
+      
+      if (index > -1) {
+        processes[index] = updatedObj;
+      } else {
+        processes.push(updatedObj);
+      }
+      
+      $update();
+    };
+
+    // 3. Lifecycle Hooks
+$on('pageInit', () => {
+      console.log('PM2 Monitor View Active');
+      
+      const socket = window.io ? window.io('http://localhost:3001') : null;
+
+      if (socket) {
+        socket.on('connect', () => {
+          lastEvent = 'Connected to Backend Socket';
+          $update();
+        });
+
+        socket.on('pm2status-list', (data) => {
+          processes = []; 
+          if (Array.isArray(data)) {
+            data.forEach(p => processUpdate(p));
+          }
+        });
+
+        socket.on('pm2-event-update', (payload) => {
+          lastEvent = `Event: ${payload.event} (${new Date().toLocaleTimeString()})`;
+          if (payload.data) processUpdate(payload.data);
+          else $update();
+        });
+
+        socket.on('connect_error', (err) => {
+          lastEvent = `Socket Error: ${err.message}`;
+          $update();
+        });
+      } else {
+        // CHANGED THIS LINE TO PREVENT COMPILER CONFUSION
+        lastEvent = 'Error: Socket.io not found. Check index.html for script imports.';
+        $update();
+      }
+    });
+    // 4. Return the render function
+    return $render;
+  };
 </script>

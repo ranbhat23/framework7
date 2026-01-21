@@ -29,8 +29,10 @@ var routes = [
   {
     path: '/pm2status/',
     component: pm2statusPage,
+    beforeEnter: function() {
+       console.log('Router is attempting to load PM2 page');
+    }
   },
-
   {
     path: '/dynamic-route/blog/:blogId/post/:postId/',
     component: DynamicRoutePage,

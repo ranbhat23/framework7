@@ -1,32 +1,155 @@
-<!-- ... (head content remains the same) ... -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PM2 Event Stream Dashboard</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 50%;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .online {
+            color: green;
+            font-weight: bold;
+        }
+        .stopped, .errored {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
 <body>
-    <h1>PM2 Event Stream</h1>
-    <p>Check the console for structured event data. Last event received shown below.</p>
+    <h1>PM2 Process Status</h1>
+    <p>Real-time status of each listed process.</p>
+    
+    <table id="process-table">
+        <thead>
+            <tr>
+                <th>Process Name</th>
+                <th>Status</th>
+                <th>ID</th>
+                <th>Memory (MB)</th>
+                <th>Uptime</th>
+            </tr>
+        </thead>
+        <tbody id="process-table-body">
+            <!-- Process rows will be inserted here by JavaScript -->
+        </tbody>
+    </table>
+
+    <p>Last event received shown below:</p>
     <pre id="status-output">Waiting for PM2 events...</pre>
 
+    <script src="http://localhost:3001/socket.io/socket.io.js"></script>
     <script>
         const socket = io('http://localhost:3001');
+        const statusOutput = document.getElementById('status-output');
+        const tableBody = document.getElementById('process-table-body');
 
         socket.on('connect', () => {
             console.log('Connected to server');
+            statusOutput.textContent = 'Connected to server, waiting for initial status list...';
         });
 
-        // Listen for specific event updates
-        socket.on('pm2-event-update', (eventPayload) => {
-            const outputElement = document.getElementById('status-output');
-            outputElement.textContent = `Event Type: ${eventPayload.event}\n\n` + 
-                                        JSON.stringify(eventPayload.data, null, 2);
-            console.log('Received PM2 event:', eventPayload);
-        });
+        // Function to format memory from bytes to MB
+        function formatMemory(bytes) {
+            return (bytes / (1024 * 1024)).toFixed(2);
+        }
+
+        // Function to format uptime from milliseconds to a readable string
+        function formatUptime(uptimeMs) {
+            if (!uptimeMs) return 'N/A';
+            const seconds = Math.floor(uptimeMs / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+
+            if (days > 0) return `${days}d ${hours % 24}h`;
+            if (hours > 0) return `${hours % 24}h ${minutes % 60}m`;
+            if (minutes > 0) return `${minutes % 60}m ${seconds % 60}s`;
+            return `${seconds}s`;
+        }
         
-        // Listen for the initial list snapshot if you implement that part
+        // Function to update or add a process row in the table
+        function updateProcessRow(processData) {
+            const pm2_env = processData.pm2_env;
+            const processName = processData.name;
+            const processId = processData.pm_id;
+            const status = pm2_env.status;
+            const memory = formatMemory(processData.monit.memory);
+            // Uptime can be derived from the 'pm_uptime' field in pm2_env
+            const uptime = formatUptime(pm2_env.pm_uptime ? Date.now() - pm2_env.pm_uptime : null);
+
+
+            let row = document.getElementById(`process-row-${processId}`);
+            if (!row) {
+                row = document.createElement('tr');
+                row.id = `process-row-${processId}`;
+                tableBody.appendChild(row);
+            } else {
+                // Clear existing cells for update
+                row.innerHTML = '';
+            }
+
+            // Create and append cells
+            const cellName = document.createElement('td');
+            cellName.textContent = processName;
+            row.appendChild(cellName);
+
+            const cellStatus = document.createElement('td');
+            cellStatus.textContent = status;
+            cellStatus.className = status === 'online' ? 'online' : (status === 'stopped' ? 'stopped' : 'errored');
+            row.appendChild(cellStatus);
+
+            const cellId = document.createElement('td');
+            cellId.textContent = processId;
+            row.appendChild(cellId);
+
+            const cellMemory = document.createElement('td');
+            cellMemory.textContent = memory + ' MB';
+            row.appendChild(cellMemory);
+
+            const cellUptime = document.createElement('td');
+            cellUptime.textContent = uptime;
+            row.appendChild(cellUptime);
+        }
+
+        // Listen for initial list snapshot
         socket.on('pm2-status-list', (statusData) => {
             console.log('Received initial status list:', statusData);
-            // You'd handle updating a table/UI here
+            // Clear existing table and populate with current data
+            tableBody.innerHTML = ''; 
+            if (Array.isArray(statusData)) {
+                statusData.forEach(updateProcessRow);
+            }
+            statusOutput.textContent = `Initial list received and displayed. Total processes: ${statusData.length}`;
         });
+        
+        // Listen for specific event updates (e.g., process start/stop)
+        socket.on('pm2-event-update', (eventPayload) => {
+            statusOutput.textContent = `Event Type: ${eventPayload.event}\n\n` + 
+                                        JSON.stringify(eventPayload.data, null, 2);
+            console.log('Received PM2 event:', eventPayload);
+            // Assuming the event payload 'data' contains the process info
+            if (eventPayload.data) {
+                updateProcessRow(eventPayload.data);
+            }
+        });
+        
 
         socket.on('disconnect', () => {
             console.log('Disconnected from server');
+            statusOutput.textContent = 'Disconnected from server';
         });
     </script>
 </body>

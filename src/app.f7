@@ -51,10 +51,10 @@
               <i class="icon material-icons if-md">view_list</i>
               <span class="tabbar-label">github</span>
             </a>
-            <a href="#view-settings" class="tab-link">
+            <a href="#view-pm2status" class="tab-link">
               <i class="icon f7-icons if-not-md">gear</i>
-              <i class="icon material-icons if-md">settings</i>
-              <span class="tabbar-label">Settings</span>
+              <i class="icon material-icons if-md">pm2status</i>
+              <span class="tabbar-label">pm2status</span>
             </a>
           </div>
         </div>
@@ -70,9 +70,9 @@
         <!-- github page will be loaded here dynamically from /github/ route -->
       </div>
 
-      <!-- Settings View -->
-      <div id="view-settings" class="view view-init tab" data-name="settings" data-url="/settings/">
-        <!-- Settings page will be loaded here dynamically from /settings/ route -->
+      <!-- pm2status View -->
+      <div id="view-pm2status" class="view view-init tab" data-name="pm2status" data-url="/pm2status/">
+        <!-- pm2status page will be loaded here dynamically from /pm2status/ route -->
       </div>
     </div>
 

@@ -27,7 +27,7 @@
   -webkit-font-smoothing: antialiased; // Support for all WebKit browsers
   -moz-osx-font-smoothing: grayscale; // Support for Firefox
   text-rendering: optimizeLegibility; // Support for Safari and Chrome
-  font-feature-settings: 'liga'; // Support for IE
+  font-feature-pm2status: 'liga'; // Support for IE
 }
 
 @mixin material-icons-font($font-family) {

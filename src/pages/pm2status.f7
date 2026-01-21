@@ -1,9 +1,9 @@
 <template>
-<div class="page" data-name="settings">
+<div class="page" data-name="pm2status">
   <div class="navbar">
     <div class="navbar-bg"></div>
     <div class="navbar-inner sliding">
-      <div class="title">Settings</div>
+      <div class="title">pm2status</div>
     </div>
   </div>
   <div class="page-content">

@@ -132,7 +132,7 @@
         }
 
         // Listen for initial list snapshot
-        socket.on('pm2-status-list', (statusData) => {
+        socket.on('pm2status-list', (statusData) => {
             console.log('Received initial status list:', statusData);
             tableBody.innerHTML = ''; 
             if (Array.isArray(statusData)) {

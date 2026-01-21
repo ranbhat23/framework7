@@ -7,7 +7,7 @@
     <style>
         table {
             border-collapse: collapse;
-            width: 50%;
+            width: 70%; /* Made table wider */
             margin-top: 20px;
         }
         th, td {
@@ -18,25 +18,21 @@
         th {
             background-color: #f2f2f2;
         }
-        .online {
-            color: green;
-            font-weight: bold;
-        }
-        .stopped, .errored {
-            color: red;
-            font-weight: bold;
-        }
+        .online { color: green; font-weight: bold; }
+        .stopped { color: red; font-weight: bold; }
+        .errored { color: orange; font-weight: bold; } /* Added specific errored style */
+        .previous-status { color: gray; font-size: 0.8em; margin-left: 10px; }
     </style>
 </head>
 <body>
     <h1>PM2 Process Status</h1>
-    <p>Real-time status of each listed process.</p>
+    <p>Displays current status and previous status if changed recently.</p>
     
     <table id="process-table">
         <thead>
             <tr>
                 <th>Process Name</th>
-                <th>Status</th>
+                <th>Current Status</th>
                 <th>ID</th>
                 <th>Memory (MB)</th>
                 <th>Uptime</th>
@@ -55,18 +51,18 @@
         const socket = io('http://localhost:3001');
         const statusOutput = document.getElementById('status-output');
         const tableBody = document.getElementById('process-table-body');
+        
+        // --- Store history of process statuses here ---
+        const processHistory = {}; 
 
         socket.on('connect', () => {
             console.log('Connected to server');
-            statusOutput.textContent = 'Connected to server, waiting for initial status list...';
         });
 
-        // Function to format memory from bytes to MB
         function formatMemory(bytes) {
             return (bytes / (1024 * 1024)).toFixed(2);
         }
 
-        // Function to format uptime from milliseconds to a readable string
         function formatUptime(uptimeMs) {
             if (!uptimeMs) return 'N/A';
             const seconds = Math.floor(uptimeMs / 1000);
@@ -80,25 +76,31 @@
             return `${seconds}s`;
         }
         
-        // Function to update or add a process row in the table
         function updateProcessRow(processData) {
             const pm2_env = processData.pm2_env;
             const processName = processData.name;
             const processId = processData.pm_id;
-            const status = pm2_env.status;
+            const currentStatus = pm2_env.status;
             const memory = formatMemory(processData.monit.memory);
-            // Uptime can be derived from the 'pm_uptime' field in pm2_env
             const uptime = formatUptime(pm2_env.pm_uptime ? Date.now() - pm2_env.pm_uptime : null);
 
-
             let row = document.getElementById(`process-row-${processId}`);
+            let previousStatus = processHistory[processId] || 'N/A';
+            
+            // If the status has changed from the last time we saw it, update the history
+            if (currentStatus !== previousStatus && previousStatus !== 'N/A') {
+                // Keep the previous status visible for a short time or until overwritten
+            }
+            
+            // Always update history to the current status after processing
+            processHistory[processId] = currentStatus;
+
             if (!row) {
                 row = document.createElement('tr');
                 row.id = `process-row-${processId}`;
                 tableBody.appendChild(row);
             } else {
-                // Clear existing cells for update
-                row.innerHTML = '';
+                row.innerHTML = ''; // Clear for update
             }
 
             // Create and append cells
@@ -107,8 +109,13 @@
             row.appendChild(cellName);
 
             const cellStatus = document.createElement('td');
-            cellStatus.textContent = status;
-            cellStatus.className = status === 'online' ? 'online' : (status === 'stopped' ? 'stopped' : 'errored');
+            cellStatus.innerHTML = `<span class="${currentStatus}">${currentStatus}</span>`;
+            
+            // Add previous status indicator if it was something different
+            if (previousStatus !== 'N/A' && previousStatus !== currentStatus) {
+                 cellStatus.innerHTML += `<span class="previous-status">(was ${previousStatus})</span>`;
+            }
+
             row.appendChild(cellStatus);
 
             const cellId = document.createElement('td');
@@ -127,29 +134,23 @@
         // Listen for initial list snapshot
         socket.on('pm2-status-list', (statusData) => {
             console.log('Received initial status list:', statusData);
-            // Clear existing table and populate with current data
             tableBody.innerHTML = ''; 
             if (Array.isArray(statusData)) {
-                statusData.forEach(updateProcessRow);
+                statusData.forEach(p => {
+                    // Initialize history with the starting status
+                    processHistory[p.pm_id] = p.pm2_env.status; 
+                    updateProcessRow(p);
+                });
             }
-            statusOutput.textContent = `Initial list received and displayed. Total processes: ${statusData.length}`;
         });
         
-        // Listen for specific event updates (e.g., process start/stop)
+        // Listen for specific event updates
         socket.on('pm2-event-update', (eventPayload) => {
             statusOutput.textContent = `Event Type: ${eventPayload.event}\n\n` + 
                                         JSON.stringify(eventPayload.data, null, 2);
-            console.log('Received PM2 event:', eventPayload);
-            // Assuming the event payload 'data' contains the process info
             if (eventPayload.data) {
                 updateProcessRow(eventPayload.data);
             }
-        });
-        
-
-        socket.on('disconnect', () => {
-            console.log('Disconnected from server');
-            statusOutput.textContent = 'Disconnected from server';
         });
     </script>
 </body>

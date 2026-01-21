@@ -20,5 +20,5 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  font-feature-pm2status: "liga";
+  font-feature-settings: "liga";
 }

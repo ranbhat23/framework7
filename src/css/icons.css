@@ -22,7 +22,7 @@
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   -moz-osx-font-smoothing: grayscale;
-  font-feature-pm2status: 'liga';
+  font-feature-settings: 'liga';
 }
 
 /* Framework7 Icons Font (for iOS theme) */
@@ -48,9 +48,9 @@
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   -moz-osx-font-smoothing: grayscale;
-  -webkit-font-feature-pm2status: 'liga';
-  -moz-font-feature-pm2status: 'liga=1';
-  -moz-font-feature-pm2status: 'liga';
-  font-feature-pm2status: 'liga';
+  -webkit-font-feature-settings: 'liga';
+  -moz-font-feature-settings: 'liga=1';
+  -moz-font-feature-settings: 'liga';
+  font-feature-settings: 'liga';
   text-align: center;
 }

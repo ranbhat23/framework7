@@ -1,0 +1,33 @@
+<!-- ... (head content remains the same) ... -->
+<body>
+    <h1>PM2 Event Stream</h1>
+    <p>Check the console for structured event data. Last event received shown below.</p>
+    <pre id="status-output">Waiting for PM2 events...</pre>
+
+    <script>
+        const socket = io('http://localhost:3001');
+
+        socket.on('connect', () => {
+            console.log('Connected to server');
+        });
+
+        // Listen for specific event updates
+        socket.on('pm2-event-update', (eventPayload) => {
+            const outputElement = document.getElementById('status-output');
+            outputElement.textContent = `Event Type: ${eventPayload.event}\n\n` + 
+                                        JSON.stringify(eventPayload.data, null, 2);
+            console.log('Received PM2 event:', eventPayload);
+        });
+        
+        // Listen for the initial list snapshot if you implement that part
+        socket.on('pm2-status-list', (statusData) => {
+            console.log('Received initial status list:', statusData);
+            // You'd handle updating a table/UI here
+        });
+
+        socket.on('disconnect', () => {
+            console.log('Disconnected from server');
+        });
+    </script>
+</body>
+</html>

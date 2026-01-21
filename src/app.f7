@@ -53,7 +53,7 @@
             </a>
             <a href="#view-pm2status" class="tab-link">
               <i class="icon f7-icons if-not-md">gear</i>
-              <i class="icon material-icons if-md">pm2status</i>
+              <i class="icon material-icons if-md">settings</i>
               <span class="tabbar-label">pm2status</span>
             </a>
           </div>

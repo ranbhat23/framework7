@@ -4,7 +4,7 @@ import AboutPage from '../pages/about.f7';
 import FormPage from '../pages/form.f7';
 import githubPage from '../pages/github.f7';
 import ProductPage from '../pages/product.f7';
-import SettingsPage from '../pages/settings.f7';
+import pm2statusPage from '../pages/pm2status.f7';
 
 import DynamicRoutePage from '../pages/dynamic-route.f7';
 import RequestAndLoad from '../pages/request-and-load.f7';
@@ -32,8 +32,8 @@ var routes = [
     component: ProductPage,
   },
   {
-    path: '/settings/',
-    component: SettingsPage,
+    path: '/pm2status/',
+    component: pm2statusPage,
   },
 
   {

@@ -1,5 +1,5 @@
 <template>
-  <div class="page" data-name="settings">
+  <div class="page" data-name="pm2status">
     <div class="navbar">
       <div class="navbar-bg"></div>
       <div class="navbar-inner">

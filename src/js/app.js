@@ -1,12 +1,13 @@
 import $ from 'dom7';
-import Framework7 from './framework7-custom.js';
-
+import Framework7 from 'framework7/bundle';
+import { Socket } from 'socket.io-client';
 // Import F7 Styles
-import '../css/framework7-custom.less';
+import 'framework7/css/bundle';
 
 // Import Icons and App Custom Styles
 import '../css/icons.css';
-import '../css/app.less';
+import '../css/app.css';
+
 
 // Import Routes
 import routes from './routes.js';
@@ -16,14 +17,17 @@ import store from './store.js';
 // Import main app component
 import App from '../app.f7';
 
+
 var app = new Framework7({
-  name: 'app', // App name
+  name: 'pm2status', // App name
   theme: 'auto', // Automatic theme detection
+
 
   el: '#app', // App root element
   component: App, // App main component
   // App store
   store: store,
+  socket:Socket,
   // App routes
   routes: routes,
 

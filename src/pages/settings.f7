@@ -1,0 +1,17 @@
+<template>
+<div class="page" data-name="settings">
+  <div class="navbar">
+    <div class="navbar-bg"></div>
+    <div class="navbar-inner sliding">
+      <div class="title">PM2 Status</div>
+    </div>
+  </div>
+  <div class="page-content">
+    </div>
+  </div>
+</template>
+<script>
+export default () => {
+  return $render;
+};
+</script>

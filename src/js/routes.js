@@ -1,9 +1,10 @@
 
 import HomePage from '../pages/home.f7';
 import AboutPage from '../pages/about.f7';
-import githubPage from '../pages/github.f7';
+import FormPage from '../pages/form.f7';
+import CatalogPage from '../pages/catalog.f7';
 import ProductPage from '../pages/product.f7';
-import pm2statusPage from '../pages/pm2status.f7';
+import SettingsPage from '../pages/settings.f7';
 
 import DynamicRoutePage from '../pages/dynamic-route.f7';
 import RequestAndLoad from '../pages/request-and-load.f7';
@@ -19,20 +20,22 @@ var routes = [
     component: AboutPage,
   },
   {
-    path: '/github/',
-    component: githubPage,
+    path: '/form/',
+    component: FormPage,
+  },
+  {
+    path: '/catalog/',
+    component: CatalogPage,
   },
   {
     path: '/product/:id/',
     component: ProductPage,
   },
   {
-    path: '/pm2status/',
-    component: pm2statusPage,
-    beforeEnter: function() {
-       console.log('Router is attempting to load PM2 page');
-    }
+    path: '/settings/',
+    component: SettingsPage,
   },
+
   {
     path: '/dynamic-route/blog/:blogId/post/:postId/',
     component: DynamicRoutePage,

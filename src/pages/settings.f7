@@ -1,17 +1,68 @@
 <template>
-<div class="page" data-name="settings">
-  <div class="navbar">
-    <div class="navbar-bg"></div>
-    <div class="navbar-inner sliding">
-      <div class="title">PM2 Status</div>
+  <div class="page" data-name="settings">
+    <div class="navbar">
+      <div class="navbar-bg"></div>
+      <div class="navbar-inner">
+        <div class="title">PM2 Status</div>
+      </div>
     </div>
-  </div>
-  <div class="page-content">
+    <div class="page-content">
+      <div class="block-title">Process List</div>
+      
+      <div class="list simple-list">
+        <ul>
+          ${processes.map((p) => $h`
+            <li>
+              <div class="item-content">
+                <div class="item-inner">
+                  <div class="item-title">
+                    ${p.name} 
+                    <span class="badge color-${p.pm2_env.status === 'online' ? 'green' : 'red'}">
+                      ${p.pm2_env.status}
+                    </span>
+                  </div>
+                  <div class="item-after">${(p.monit.memory / 1024 / 1024).toFixed(2)} MB</div>
+                </div>
+              </div>
+            </li>
+          `)}
+        </ul>
+      </div>
+
+      ${processes.length === 0 ? $h`
+        <div class="block text-align-center">
+          <p>No processes found or waiting for connection...</p>
+        </div>
+      ` : ''}
     </div>
   </div>
 </template>
+
 <script>
-export default () => {
-  return $render;
-};
+  // 1. Move imports to the very top, before export default
+  import { io } from 'socket.io-client';
+
+  export default (props, { $update, $on, $f7 }) => {
+    // 2. Define variables
+    let processes = [];
+    let socket = null;
+
+    $on('pageInit', () => {
+      // 3. Initialize socket inside the lifecycle
+      socket = io('http://localhost:3001');
+
+      socket.on('pm2status-list', (data) => {
+        processes = data;
+        $update();
+      });
+      
+      // ... rest of your socket logic ...
+    });
+
+    $on('pageBeforeRemove', () => {
+      if (socket) socket.disconnect();
+    });
+
+    return $render;
+  }
 </script>

@@ -1,4 +1,5 @@
 
+import { type } from 'os';
 import path from 'path';
 import framework7 from 'rollup-plugin-framework7';
 
@@ -10,8 +11,7 @@ export default async () => {
 
   return  {
     plugins: [
-      framework7({ emitCss: false }),
-
+      framework7({ emitCss: false, type: 'core'})
     ],
     root: SRC_DIR,
     base: '',
@@ -31,6 +31,9 @@ export default async () => {
     },
     server: {
       host: true,
+    },
+    optimizeDeps: {
+      extensions: ['.f7'],
     },
     esbuild: {
       jsxFactory: '$jsx',

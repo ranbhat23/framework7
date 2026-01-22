@@ -1,5 +1,5 @@
 <template>
-  <div class="page" name="pm2status">
+<div class="page" data-name="pm2status">
     <div class="navbar">
       <div class="navbar-bg"></div>
       <div class="navbar-inner">
@@ -51,6 +51,7 @@
       </div>
     </div>
   </div>
+
 </template>
 
 <style>

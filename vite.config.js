@@ -26,6 +26,7 @@ export default async () => {
       alias: {
         '@': SRC_DIR,
       },
+      extensions: ['.js', '.f7', '.json'], // Add .f7 here
     },
     // CRITICAL: Ensure Vite handles .f7 files as JSX/JS
     // If you are using .f7 files, Vite needs to know how to parse the template

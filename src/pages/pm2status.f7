@@ -9,19 +9,33 @@
     <div class="page-content">
       <div class="block-title">Process List</div>
       
-      <div class="list simple-list">
+      <div class="list media-list no-chevron">
         <ul>
           ${processes.map((p) => $h`
             <li>
               <div class="item-content">
                 <div class="item-inner">
-                  <div class="item-title">
-                    ${p.name} 
-                    <span class="badge color-${p.pm2_env.status === 'online' ? 'green' : 'red'}">
-                      ${p.pm2_env.status}
-                    </span>
+                  <div class="item-title-row">
+                    <div class="item-title">${p.name}</div>
+                    <div class="item-after">
+                      <span class="badge color-${p.pm2_env.status === 'online' ? 'green' : 'red'}">
+                        ${p.pm2_env.status}
+                      </span>
+                    </div>
                   </div>
-                  <div class="item-after">${(p.monit.memory / 1024 / 1024).toFixed(2)} MB</div>
+                  <div class="item-subtitle">${(p.monit.memory / 1024 / 1024).toFixed(2)} MB</div>
+                  
+                  <div class="block" style="margin: 10px 0 0 0; padding: 0;">
+                    <div class="row">
+                      <button @click="${() => controlProcess(p.name, 'restart')}" 
+                              class="col button button-small button-outline color-blue">Restart</button>
+                      
+                      ${p.pm2_env.status === 'online' 
+                        ? $h`<button @click="${() => controlProcess(p.name, 'stop')}" class="col button button-small button-fill color-red">Stop</button>`
+                        : $h`<button @click="${() => controlProcess(p.name, 'start')}" class="col button button-small button-fill color-green">Start</button>`
+                      }
+                    </div>
+                  </div>
                 </div>
               </div>
             </li>
@@ -31,7 +45,8 @@
 
       ${processes.length === 0 ? $h`
         <div class="block text-align-center">
-          <p>No processes found or waiting for connection...</p>
+          <p>Connecting to PM2...</p>
+          <div class="preloader"></div>
         </div>
       ` : ''}
     </div>
@@ -39,24 +54,31 @@
 </template>
 
 <script>
-  // 1. Move imports to the very top, before export default
   import { io } from 'socket.io-client';
 
   export default (props, { $update, $on, $f7 }) => {
-    // 2. Define variables
     let processes = [];
     let socket = null;
 
+    // 1. Function to emit the command to Node.js
+    const controlProcess = (name, action) => {
+      $f7.dialog.preloader(`${action}ing ${name}...`);
+      socket.emit('pm2-control', { name, action });
+    };
+
     $on('pageInit', () => {
-      // 3. Initialize socket inside the lifecycle
       socket = io('http://localhost:3001');
 
       socket.on('pm2status-list', (data) => {
         processes = data;
+        $f7.dialog.close(); // Close preloader if it was open
         $update();
       });
-      
-      // ... rest of your socket logic ...
+
+      socket.on('pm2-error', (err) => {
+        $f7.dialog.close();
+        $f7.dialog.alert(err.message, 'PM2 Error');
+      });
     });
 
     $on('pageBeforeRemove', () => {

@@ -66,20 +66,33 @@
       socket.emit('pm2-control', { name, action });
     };
 
-    $on('pageInit', () => {
-      socket = io('http://localhost:3001');
+$on('pageInit', () => {
+  socket = io('http://localhost:3001');
 
-      socket.on('pm2status-list', (data) => {
-        processes = data;
-        $f7.dialog.close(); // Close preloader if it was open
-        $update();
-      });
+  // Handle the initial full list
+  socket.on('pm2-status-list', (data) => {
+    processes = data;
+    $update();
+  });
 
-      socket.on('pm2-error', (err) => {
-        $f7.dialog.close();
-        $f7.dialog.alert(err.message, 'PM2 Error');
-      });
-    });
+  // Handle live individual updates
+  socket.on('pm2-event-update', (update) => {
+    // Find the process in our local array and update it
+    const index = processes.findIndex(p => p.name === update.name);
+    
+    if (index !== -1) {
+      processes[index].pm2_env.status = update.status;
+      // If you added cpu/memory to the backend payload, update those too:
+      // processes[index].monit.memory = update.memory; 
+      $update();
+    }
+  });
+
+  socket.on('pm2-error', (err) => {
+    $f7.dialog.close();
+    $f7.dialog.alert(err.message, 'PM2 Error');
+  });
+});
 
     $on('pageBeforeRemove', () => {
       if (socket) socket.disconnect();

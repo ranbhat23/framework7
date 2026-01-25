@@ -18,19 +18,18 @@
                   <div class="item-title-row">
                     <div class="item-title">${p.name}</div>
                     <div class="item-after">
-                      <span class="badge color-${p.pm2_env.status === 'online' ? 'green' : 'red'}">
-                        ${p.pm2_env.status}
+                      <span class="badge color-${p.status === 'online' ? 'green' : 'red'}">
+                        ${p.status}
                       </span>
                     </div>
                   </div>
-                  <div class="item-subtitle">${(p.monit.memory / 1024 / 1024).toFixed(2)} MB</div>
                   
                   <div class="block" style="margin: 10px 0 0 0; padding: 0;">
                     <div class="row">
                       <button @click="${() => controlProcess(p.name, 'restart')}" 
                               class="col button button-small button-outline color-blue">Restart</button>
                       
-                      ${p.pm2_env.status === 'online' 
+                      ${p.status === 'online' 
                         ? $h`<button @click="${() => controlProcess(p.name, 'stop')}" class="col button button-small button-fill color-red">Stop</button>`
                         : $h`<button @click="${() => controlProcess(p.name, 'start')}" class="col button button-small button-fill color-green">Start</button>`
                       }
@@ -64,6 +63,7 @@
     const controlProcess = (name, action) => {
       $f7.dialog.preloader(`${action}ing ${name}...`);
       socket.emit('pm2-control', { name, action });
+      $f7.dialog.close();
     };
 
 $on('pageInit', () => {
@@ -81,7 +81,7 @@ $on('pageInit', () => {
     const index = processes.findIndex(p => p.name === update.name);
     
     if (index !== -1) {
-      processes[index].pm2_env.status = update.status;
+      processes[index].status = update.status;
       // If you added cpu/memory to the backend payload, update those too:
       // processes[index].monit.memory = update.memory; 
       $update();
